@@ -1,0 +1,18 @@
+{
+    "_comment": "11...general , 12..user",
+    "11001": "Session Expired, Please login again!",
+    "12001": "Please provide data.",
+    "12002": "User does not exist",
+    "12003": "Invalid Password",
+    "12004": "Username alredy exist! please try some other username",
+    "12005": "Email alredy exist! please try some other email",
+    "12006": "Please provide data",
+    "12007": "Please provide valid email",
+    "12008": "Broker does not exist",
+    "12009": "User already exist",
+    "12010": "Invalid Password",
+    "12011": "Password change Expired",
+    "12012": "Broker not found",
+    "12013" : "User Not Verified"
+
+    }

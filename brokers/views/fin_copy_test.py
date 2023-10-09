@@ -1,4 +1,4 @@
-from NorenRestApiPy.NorenApi import NorenApi
+from .NorenApi import NorenApi
 from .api_helper import ShoonyaApiPy
 import pandas as pd
 import threading

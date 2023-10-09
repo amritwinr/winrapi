@@ -1,4 +1,3 @@
-from NorenRestApiPy.NorenApi import NorenApi
 from brokers.tags import BROKER
 from custom_lib.helper import post_login
 from rest_framework.response import Response

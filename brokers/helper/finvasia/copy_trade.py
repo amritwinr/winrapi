@@ -154,8 +154,7 @@ class FinvaciaBot:
                 for acc in broker_creds_objects_list
             ]
 
-            print(type(accounts[1]['status']))
-            if accounts[1]['status'] == '0':
+            if accounts[0]['status'] == '0':
                 break
       
             current_time = datetime.datetime.now(ist)

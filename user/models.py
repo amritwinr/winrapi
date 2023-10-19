@@ -59,6 +59,7 @@ class DnBrokerMaster(BaseFields):
 
 class DnBrokerUserCredsMaster(BaseFields):
     id = models.BigAutoField(primary_key=True)
+    user = models.CharField(max_length=1000)
     user_id = models.BigIntegerField()
     broker_id = models.BigIntegerField()
     broker_user_id = models.BigIntegerField()
@@ -79,11 +80,9 @@ class DnBrokerUserCredsMaster(BaseFields):
 
 class DnFinvasiaUserCredsMaster(BaseFields):
     id = models.BigAutoField(primary_key=True)
+    user = models.CharField(max_length=1000)
     user_id = models.CharField(max_length=1000)
-    broker_id = models.CharField(max_length=1000)
-    broker_user_id = models.CharField(max_length=1000)
-    broker_name = models.CharField(max_length=1000)
-    totp_encrypt_key = models.CharField(max_length=1000)
+    totp_key = models.CharField(max_length=1000)
     quantity = models.CharField(max_length=1000)
     is_main = models.CharField(max_length=1000)
     twoFA = models.CharField(max_length=1000)
@@ -91,11 +90,101 @@ class DnFinvasiaUserCredsMaster(BaseFields):
     vc = models.CharField(max_length=1000)
     app_key = models.CharField(max_length=1000)
     imei = models.CharField(max_length=1000)
-    is_background_task_running = models.IntegerField(default=0)
+    access_token = models.CharField(max_length=1000)
 
     class Meta:
         # managed = False
         db_table = 'dn_finvasia_user_creds_master'
+
+
+class DnAngelUserCredsMaster(BaseFields):
+    id = models.BigAutoField(primary_key=True)
+    user = models.CharField(max_length=1000)
+    user_id = models.CharField(max_length=1000)
+    api_key = models.CharField(max_length=1000)
+    totp_key = models.CharField(max_length=1000)
+    twoFA = models.CharField(max_length=1000)
+    quantity = models.CharField(max_length=1000)
+    is_main = models.CharField(max_length=1000)
+    status = models.CharField(max_length=1000)
+
+    class Meta:
+        # managed = False
+        db_table = 'dn_angel_user_creds_master'
+
+
+class DnUpstoxUserCredsMaster(BaseFields):
+    id = models.BigAutoField(primary_key=True)
+    user = models.CharField(max_length=1000)
+    user_id = models.CharField(max_length=1000)
+    api_key = models.CharField(max_length=1000)
+    secret_key = models.CharField(max_length=1000)
+    pin = models.CharField(max_length=1000)
+    mobile_no = models.CharField(max_length=1000)
+    totp_key = models.CharField(max_length=1000)
+    quantity = models.CharField(max_length=1000)
+    is_main = models.CharField(max_length=1000)
+    status = models.CharField(max_length=1000)
+    access_token = models.CharField(max_length=1000)
+
+    class Meta:
+        # managed = False
+        db_table = 'dn_upstox_user_creds_master'
+
+
+class DnFyersUserCredsMaster(BaseFields):
+    id = models.BigAutoField(primary_key=True)
+    user = models.CharField(max_length=1000)
+    fy_id = models.CharField(max_length=1000)
+    app_id = models.CharField(max_length=1000)
+    secret_key = models.CharField(max_length=1000)
+    pin = models.CharField(max_length=1000)
+    totp_key = models.CharField(max_length=1000)
+    quantity = models.CharField(max_length=1000)
+    is_main = models.CharField(max_length=1000)
+    status = models.CharField(max_length=1000)
+
+    class Meta:
+        # managed = False
+        db_table = 'dn_fyers_creds_master'
+
+
+class DnFlattradeUserCredsMaster(BaseFields):
+    id = models.BigAutoField(primary_key=True)
+    user = models.CharField(max_length=1000)
+    user_id = models.CharField(max_length=1000)
+    api_key = models.CharField(max_length=1000)
+    secret_key = models.CharField(max_length=1000)
+    password = models.CharField(max_length=1000)
+    totp_key = models.CharField(max_length=1000)
+    quantity = models.CharField(max_length=1000)
+    is_main = models.CharField(max_length=1000)
+    status = models.CharField(max_length=1000)
+
+    class Meta:
+        # managed = False
+        db_table = 'dn_flattrade_creds_master'
+
+
+class Dn5paisaUserCredsMaster(BaseFields):
+    id = models.BigAutoField(primary_key=True)
+    user = models.CharField(max_length=1000)
+    user_id = models.CharField(max_length=1000)
+    app_name = models.CharField(max_length=1000)
+    app_source = models.CharField(max_length=1000)
+    password = models.CharField(max_length=1000)
+    user_key = models.CharField(max_length=1000)
+    encryption_key = models.CharField(max_length=1000)
+    email = models.CharField(max_length=1000)
+    passwd = models.CharField(max_length=1000)
+    dob = models.CharField(max_length=1000)
+    quantity = models.CharField(max_length=1000)
+    is_main = models.CharField(max_length=1000)
+    status = models.CharField(max_length=1000)
+
+    class Meta:
+        # managed = False
+        db_table = 'dn_5paisa_creds_master'
 
 
 class DnUseCaseMaster(BaseFields):
@@ -120,3 +209,26 @@ class DnBrokerUserStatusMaster(BaseFields):
     class Meta:
         # managed = False
         db_table = 'dn_broker_user_status_master'
+
+
+class DnRomilBroker(BaseFields):
+    id = models.BigAutoField(primary_key=True)
+    user = models.CharField(max_length=1000)
+    upper_level = models.CharField(max_length=1000)
+    upper_target = models.CharField(max_length=1000)
+    sl_upper = models.CharField(max_length=1000)
+    strike_ce = models.CharField(max_length=1000)
+    lower_level = models.CharField(max_length=1000)
+    lower_target = models.CharField(max_length=1000)
+    sl_lower = models.CharField(max_length=1000)
+    strike_pe = models.CharField(max_length=1000)
+    quantity = models.CharField(max_length=1000)
+    expiry = models.CharField(max_length=1000)
+    type = models.CharField(max_length=1000)
+    status = models.CharField(max_length=1000)
+    symbol = models.CharField(max_length=1000)
+    symbolNum = models.IntegerField(default=0)
+
+    class Meta:
+        # managed = False
+        db_table = 'romil_broker'

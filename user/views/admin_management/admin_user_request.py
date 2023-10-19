@@ -14,7 +14,7 @@ class AdminUserRequestView(AdminAPIView):
         manual_parameters=admin_post_login
     )
     def get(self, request):
-        requestObj = DnUserRequestMaster.objects.filter(is_approved=0).values("id","email","username","phone","message")
+        requestObj = DnUserRequestMaster.objects.filter(is_approved=0).values("id","email","username","phone")
         if not requestObj.exists():
             return Response({})
         

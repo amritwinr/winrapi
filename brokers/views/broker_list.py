@@ -18,7 +18,8 @@ class BrokerListView(PostLoginAPIView):
         response_data = []
         for broker in active_brokers:
             try:
-                user_broker_status = DnBrokerUserStatusMaster.objects.get(broker_id=broker.id, user_id=user_id)
+                user_broker_status = DnBrokerUserStatusMaster.objects.get(
+                    broker_id=broker.id, user_id=user_id)
                 user_status = user_broker_status.status
             except DnBrokerUserStatusMaster.DoesNotExist:
                 user_status = -1

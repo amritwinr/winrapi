@@ -9,14 +9,21 @@ import threading
 from user.models import DnFinvasiaUserCredsMaster
 from django.db.models import F
 
+import pyotp
+import pandas as pd
+
+import threading
+
+
 class FinvaciaBot:
 
-    def __init__(self, master_account, other_accounts, logger, max_threads=50):
+    def __init__(self, master_account, other_accounts, logger, user, max_threads=50):
         self.m_acc = master_account
         self.logger = logger
         self.master_account = master_account
         self.accounts = other_accounts
         self.max_threads = max_threads
+        self.user=user
 
     def get_order_book(self):
 
@@ -44,33 +51,34 @@ class FinvaciaBot:
                 self.logger.error(f"Error fetching order history data: {e}")
 
     def place_order(self):
-        broker_creds_objects = DnFinvasiaUserCredsMaster.objects.filter(status=1)
+        broker_creds_objects = DnFinvasiaUserCredsMaster.objects.filter(status=1, user=self.user)
 
         broker_creds_objects_list = list(
             broker_creds_objects.values(
                 "quantity",
                 "app_key",
                 "twoFA",
-                "totp_encrypt_key",
+                "totp_key",
                 "vc",
                 "imei",
-                userid=F('broker_user_id'),
+                "access_token",
+                userid=F('user_id'),
             ),
         )
 
         accounts = [
             {
-            "userid": str(acc['userid']),
-            "app_key": str(acc['app_key']),
-            "Qty": str(acc['quantity']),
-            "twoFA": str(acc["twoFA"]),
-            "password": str(acc["totp_encrypt_key"]),
-            "vc": str(acc["vc"]),
-            "imei": str(acc["imei"]),
+                "userid": str(acc['user_id']),
+                "app_key": str(acc['app_key']),
+                "Qty": str(acc['quantity']),
+                "twoFA": str(acc["twoFA"]),
+                "password": str(acc["totp_key"]),
+                "vc": str(acc["vc"]),
+                "imei": str(acc["imei"]),
+                "access_token": str(acc["access_token"]),
             }
             for acc in broker_creds_objects_list
         ]
-
 
         api_objects = {}
         ans = {}
@@ -78,8 +86,13 @@ class FinvaciaBot:
         for account in accounts[1:]:
             factor = pyotp.TOTP(account['twoFA']).now()
             user = account["userid"]
-            api_objects[user] = ShoonyaApiPy()  # Create an API object for each account
-            ans[user] = api_objects[user].login(userid=account["userid"], password=account["password"], twoFA=factor, vendor_code=account["vc"], api_secret=account["app_key"], imei=account["imei"])
+            # Create an API object for each account
+            api_objects[user] = ShoonyaApiPy()
+            ans[user] = api_objects[user].set_session(
+            userid=account["userid"], 
+            password=account["password"], 
+            usertoken=account["access_token"]
+        )
 
         def place_order_for_account(api_obj, account):
             try:
@@ -96,17 +109,19 @@ class FinvaciaBot:
                     retention=self.retention,
                     remarks='my_order_001'
                 )
-                print(f"The order id for account {account['userid']} is: {order}")
+                print(
+                    f"The order id for account {account['userid']} is: {order}")
                 return order
             except Exception as e:
                 self.logger.error(
                     f"Error placing order for account {account['userid']}: {e}")
 
         threads = []
-                   
+
         for account in accounts[1:]:
             api_obj = api_objects[account["userid"]]
-            t = threading.Thread(target=place_order_for_account, args=(api_obj, account))
+            t = threading.Thread(
+                target=place_order_for_account, args=(api_obj, account))
             t.start()
             threads.append(t)
             self.logger.info("All orders placed successfully.")
@@ -115,18 +130,14 @@ class FinvaciaBot:
             t.join()
 
         # api_objects[user].logout()
-            
+
     def process_orders(self):
         api = ShoonyaApiPy()
-        factor2 = pyotp.TOTP(self.master_account['twoFA']).now()
 
-        api.login(
-            userid=self.master_account["userid"],
-            twoFA=factor2,
-            password=self.master_account["password"],
-            vendor_code=self.master_account["vc"],
-            api_secret=self.master_account["app_key"],
-            imei=self.master_account["imei"],
+        api.set_session(
+            userid=self.master_account["userid"], 
+            password=self.master_account["password"], 
+            usertoken=self.master_account["access_token"]
         )
 
         order_history = api.get_order_book()
@@ -138,8 +149,8 @@ class FinvaciaBot:
             datetime.datetime(datetime.datetime.now().year, datetime.datetime.now().month, datetime.datetime.now().day,
                               23, 59))
 
-        while True:      
-            broker_creds_objects = DnFinvasiaUserCredsMaster.objects.filter()
+        while True:
+            broker_creds_objects = DnFinvasiaUserCredsMaster.objects.filter(user=self.user)
 
             broker_creds_objects_list = list(
                 broker_creds_objects.values(
@@ -149,14 +160,14 @@ class FinvaciaBot:
 
             accounts = [
                 {
-                "status": str(acc["status"]),
+                    "status": str(acc["status"]),
                 }
                 for acc in broker_creds_objects_list
             ]
 
             if accounts[0]['status'] == '0':
                 break
-      
+
             current_time = datetime.datetime.now(ist)
 
             if current_time > target_time:
@@ -176,7 +187,7 @@ class FinvaciaBot:
             if num_rows1 > 0:
                 if num_rows > num_rows1:
                     self.place_order()
-                        
+
             num_rows1 = ob.shape[0]
             time.sleep(0.5)
 
@@ -192,32 +203,3 @@ class FinvaciaBot:
             self.status = ob['status'].iloc[0]
         except Exception as e:
             print(e)
-
-
-
-
-# master_account = {
-#     "userid": 'FA149805',
-#     "twoFA": "N47YLJ5O5PTKG6L4ZDGI463ZJISEA323",
-#     "password": 'Romil@321',
-#     "vc": 'FA149805_U',
-#     "app_key": "c21400fa59f81eaef9015fb6db7bdd54",
-#     "imei": "xyz12345"
-# }
-
-
-# other_accounts = {
-#     "userid": "FA57167",
-#     "twoFA": "WFUAJ553LE3QO2E45D4234U6AD4RBJ54",
-#     "password": "Kiiaan0007@#",
-#     "vc": "FA57167_U",
-#     "app_key": "d0e9e7eaccdf08388502bcbda4eee3c6",
-#     "imei": "xyz12345",
-#     "Qty": 1
-# },
-
-# k = FinvaciaBot(master_account=master_account,
-#                 other_accounts=other_accounts, logger=logging)
-# s = k.place_order_for_account()
-
-# print(s)

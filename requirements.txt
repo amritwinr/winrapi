@@ -51,12 +51,15 @@ ruamel.yaml==0.17.32
 ruamel.yaml.clib==0.2.7
 six==1.16.0
 soupsieve==2.5
+smartapi-python
 sqlparse==0.4.4
 typing_extensions==4.7.1
 tzdata==2023.3
 tzlocal==5.0.1
+upstox-python-sdk
 uritemplate==4.1.1
 urllib3==2.0.4
 vine==5.0.0
 wcwidth==0.2.6
 websocket-client==1.6.3
+py5paisa

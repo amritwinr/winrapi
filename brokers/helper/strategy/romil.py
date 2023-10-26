@@ -1,22 +1,15 @@
-from .api_helper import ShoonyaApiPy
+from brokers.helper.finvasia.api_helper import ShoonyaApiPy
 from SmartApi import SmartConnect
-import requests
 import pandas as pd
 import time
-import warnings
-import os
 import pyotp
-import pdb
-from datetime import datetime, date
-import math
-from django.db.models import F
-
 from user.models import DnRomilBroker
-from brokers.helper.finvasia.romil_finvasia import FinvasiaIndexLtpBot
-from brokers.helper.angelone.romil_angel import AngelIndexLtpBot
+from brokers.helper.strategy.romil_finvasia import FinvasiaIndexLtpBot
+from brokers.helper.strategy.romil_angel import AngelIndexLtpBot
+import requests
 
 
-class AngelRomilBot:
+class RomilBot:
 
     def __init__(self, angel_account, finvasia_account, other_accounts, logger, req, max_threads=50):
         self.logger = logger
@@ -27,9 +20,11 @@ class AngelRomilBot:
         self.req = req
         self.indexLtpGlobal = float(0)
         self.finBot = FinvasiaIndexLtpBot(
-                req=self.req)
+            req=self.req)
         self.angelBot = AngelIndexLtpBot(
-                req=self.req)
+            req=self.req)
+
+        self.tokenDf = 0
 
     def process_orders(self):
         api = ShoonyaApiPy()
@@ -44,16 +39,17 @@ class AngelRomilBot:
         obj = SmartConnect(api_key=self.angel_account["api_key"])
         data = obj.generateSession(
             self.angel_account["userid"], self.angel_account["password"], factor2)
-        
-        refreshToken= data['data']['refreshToken']
-        feedToken=obj.getfeedToken()
-        userProfile= obj.getProfile(refreshToken)
 
-        url = 'https://margincalculator.angelbroking.com/OpenAPI_File/files/OpenAPIScripMaster.json'
-        data = requests.get(url).json()
-        token_df = pd.DataFrame.from_dict(data)
-        token_df['expiry'] = pd.to_datetime(token_df['expiry']).dt.date
-        token_df = token_df.astype({'strike': float})
+        refreshToken = data['data']['refreshToken']
+        feedToken = obj.getfeedToken()
+        userProfile = obj.getProfile(refreshToken)
+
+        if self.req["type"] == "Angel One":
+            url = 'https://margincalculator.angelbroking.com/OpenAPI_File/files/OpenAPIScripMaster.json'
+            data = requests.get(url).json()
+            token_df = pd.DataFrame.from_dict(data)
+            token_df['expiry'] = pd.to_datetime(token_df['expiry']).dt.date
+            self.token_df = token_df.astype({'strike': float})
 
         finvasia_lists = [
             d for d in self.accounts if d.get('type') == "Finvasia"]
@@ -75,26 +71,29 @@ class AngelRomilBot:
             indexAngel = angel_symbols.index(self.req["symbol"])
             indexFin = angel_symbols.index(self.req["symbol"])
 
-        watchlist = ['NIFTY 50']
-        watchlist2 = ['NIFTY']
-        watchlist1 = list(watchlist)  # Convert watchlist1 to a list
+        watchlist1 = ['NIFTY 50', 'BANKNIFTY', 'MIDCP', 'FINNIFTY']
+        watchlist2 = ['NIFTY', 'BANKNIFTY', 'MIDCPNIFTY', 'FINNIFTY']
 
         watchDictFin = {
-            'NIFTY': fin_symbols[0],
+            'NIFTY 50': fin_symbols[0],
             'BANKNIFTY': fin_symbols[1],
-            'FINNIFTY': fin_symbols[2],
-            'MIDCAPNIFTY': fin_symbols[3],
+            'MIDCP': fin_symbols[2],
+            'FINNIFTY': fin_symbols[3],
         }
 
         watchDictAngel = {
             'NIFTY': angel_symbols[0],
-            'NIFTY': angel_symbols[0],
-            'NIFTY': angel_symbols[0],
-            'NIFTY': angel_symbols[0],
+            'BANKNIFTY': angel_symbols[1],
+            'MIDCPNIFTY': angel_symbols[2],
+            'FINNIFTY': angel_symbols[3],
         }
+
+        angelToken = {'NIFTY': 99926000, 'BANKNIFTY': 99926009,
+                      'MIDCPNIFTY': 99926074, 'FINNIFTY': 99926037}
 
         filtered_dict_fin = {}
         filtered_dict_angel = {}
+
 
         # Check if the name matches any key in my_dict
         for key, value in watchDictFin.items():
@@ -111,7 +110,7 @@ class AngelRomilBot:
             tuple(watchlist2): filtered_dict_angel
         }
 
-        for_atm = {'NIFTY BANK': 100, 'NIFTY': 50, 'NIFTY 50': 50}
+        for_atm = [50, 100, 25, 50]
 
         while True:
             broker_creds_objects = DnRomilBroker.objects.filter(
@@ -160,7 +159,7 @@ class AngelRomilBot:
                 break
 
             for name in watchlist1 + watchlist2:
-                atm = for_atm[name]
+                atm = for_atm[indexFin]
 
                 ltp = for_ltp.get(tuple(watchlist1), {}).get(name)
                 if ltp is not None:
@@ -173,7 +172,7 @@ class AngelRomilBot:
 
                         if self.req["type"] == "Finvasia":
                             self.finBot.finvasia_indexLtp(
-                                api, atm, name, accounts_romil=accounts_romil[0], indexLtp=self.indexLtpGlobal)
+                                api, atm, name=watchlist1[indexFin], accounts_romil=accounts_romil[0], indexLtp=self.indexLtpGlobal)
 
                     except Exception as e:
                         print(e)
@@ -184,16 +183,16 @@ class AngelRomilBot:
 
                 if symbol is not None:
                     try:
-                        instruments = pd.DataFrame.from_records(data)
+                        token = angelToken.get(symbol)
                         indexLtp = obj.ltpData(
-                            'NSE', symbol, instruments[instruments.symbol == symbol].iloc[0]['token'])['data']['ltp']
+                            'NSE', symbol, token)['data']['ltp']
                         self.indexLtpGlobal = indexLtp
                         print(f"ltp_from_angle_one...{indexLtp}")
 
                         if self.req["type"] == "Angel One":
                             self.angelBot.angel_indexLtp(
-                                self.angel_account, atm, symbol=name, accounts_romil=accounts_romil[0], token_df=token_df, indexLtp=self.indexLtpGlobal)
-
+                                obj, atm, symbol=watchlist2[indexAngel], accounts_romil=accounts_romil[0], token_df=self.token_df, indexLtp=self.indexLtpGlobal)
+                            
                     except Exception as e:
                         print("error in data fatching in angle one")
 

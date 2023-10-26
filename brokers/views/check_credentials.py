@@ -3,17 +3,15 @@ from custom_lib.helper import post_login
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from custom_lib.api_view_class import PostLoginAPIView
-from rest_framework.exceptions import ParseError
 import json
 import pyotp
-from .api_helper import ShoonyaApiPy
+from brokers.helper.finvasia.api_helper import ShoonyaApiPy
 from playwright.sync_api import Playwright, sync_playwright
 from urllib.parse import parse_qs, urlparse, quote
 import requests
 from user.models import DnUpstoxUserCredsMaster, DnFinvasiaUserCredsMaster
 from py5paisa import FivePaisaClient
 from SmartApi import SmartConnect
-
 
 class CheckCred(PostLoginAPIView):
     @swagger_auto_schema(

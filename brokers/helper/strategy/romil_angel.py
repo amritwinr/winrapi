@@ -1,9 +1,5 @@
-import pandas as pd
 import math
 from datetime import datetime
-from SmartApi import SmartConnect
-import pyotp
-
 
 class AngelIndexLtpBot:
 
@@ -32,21 +28,14 @@ class AngelIndexLtpBot:
         self.banknifty_ce = []
         self.banknifty_pe = []
 
-    def angel_indexLtp(self, angel_account,  atm, symbol, accounts_romil, token_df, indexLtp):
-        factor2 = pyotp.TOTP(angel_account["twoFA"]).now()
-        obj = SmartConnect(api_key=angel_account["api_key"])
-        data = obj.generateSession(
-            angel_account["userid"], angel_account["password"], factor2)
-
-        refreshToken = data['data']['refreshToken']
-        feedToken = obj.getfeedToken()
-        userProfile = obj.getProfile(refreshToken)
-        print({"user" : userProfile})
-
+    def angel_indexLtp(self, obj,  atm, symbol, accounts_romil, token_df, indexLtp):
+        print({"atm------": atm})
+        print({"symbol------": symbol})
         name = symbol
 
         expiry_day = datetime.strptime(
             accounts_romil["expiry"], '%Y-%m-%d').date()
+        
 
         filtered_df = token_df[
             (token_df['name'] == symbol) &
@@ -56,11 +45,6 @@ class AngelIndexLtpBot:
 
         upper_limit = float(accounts_romil["upper_level"])
         lower_limit = float(accounts_romil["lower_level"])
-
-        print({"upper----": upper_limit})
-        print({"lower----": lower_limit})
-        print({"ce": self.traded_stocks_ce})
-        print({"pe": self.traded_stocks_pe})
 
         strike_c = float(accounts_romil["strike_ce"])
         strike_p = float(accounts_romil["strike_pe"])

@@ -91,6 +91,7 @@ class DnFinvasiaUserCredsMaster(BaseFields):
     app_key = models.CharField(max_length=1000)
     imei = models.CharField(max_length=1000)
     access_token = models.CharField(max_length=1000)
+    unique_code = models.CharField(max_length=1000)
 
     class Meta:
         # managed = False
@@ -232,3 +233,37 @@ class DnRomilBroker(BaseFields):
     class Meta:
         # managed = False
         db_table = 'romil_broker'
+
+class DnFinvasiaTradingView(BaseFields):
+    id = models.BigAutoField(primary_key=True)
+    user = models.CharField(max_length=1000)
+    buy_sell = models.CharField(max_length=1000)
+    symbol = models.CharField(max_length=1000)
+    exchange = models.CharField(max_length=1000)
+    strike_price = models.CharField(max_length=1000)
+    quantity = models.CharField(max_length=1000)
+    strike_ce = models.CharField(max_length=1000)
+    strike_pe = models.CharField(max_length=1000)
+    strike_type = models.CharField(max_length=1000)
+    expiry = models.CharField(max_length=1000)
+    market_type = models.CharField(max_length=1000)
+    edge_size = models.CharField(max_length=1000)
+    target = models.CharField(max_length=1000)
+    stoploss = models.CharField(max_length=1000)
+    status = models.CharField(max_length=1000)
+
+    class Meta:
+        # managed = False
+        db_table = 'dn_finvasia_trading_view'
+class DnTelegram(BaseFields):
+    id = models.BigAutoField(primary_key=True)
+    user = models.CharField(max_length=1000)
+    isAuthorized = models.BooleanField(default=False)
+    code = models.CharField(max_length=1000)
+    api_id = models.CharField(max_length=1000)
+    api_hash = models.CharField(max_length=1000)
+    phone = models.CharField(max_length=1000)
+
+    class Meta:
+        # managed = False
+        db_table = 'dn_telegram'

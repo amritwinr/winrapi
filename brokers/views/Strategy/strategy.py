@@ -3,9 +3,9 @@ from custom_lib.helper import post_login
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from custom_lib.api_view_class import PostLoginAPIView
-from user.models import DnRomilBroker, DnAngelUserCredsMaster,DnFinvasiaUserCredsMaster
+from user.models import DnRomilBroker, DnAngelUserCredsMaster, DnFinvasiaUserCredsMaster
 from django.db.models import F
-from brokers.helper.angelone.romil import AngelRomilBot
+from brokers.helper.strategy.romil import RomilBot
 import logging
 import json
 
@@ -16,9 +16,11 @@ class Strategy(PostLoginAPIView):
     )
     def post(self, request, *args, **kwargs):
         req = json.loads(request.body.decode("utf-8"))
-        broker_creds_objects_angel = DnAngelUserCredsMaster.objects.filter()
-        
-        broker_creds_objects_finvasuia = DnFinvasiaUserCredsMaster.objects.filter()
+        broker_creds_objects_angel = DnAngelUserCredsMaster.objects.filter(
+            user=req["user"])
+
+        broker_creds_objects_finvasuia = DnFinvasiaUserCredsMaster.objects.filter(
+            user=req["user"])
 
         broker_creds_objects_list_angel = list(
             broker_creds_objects_angel.values(
@@ -28,7 +30,7 @@ class Strategy(PostLoginAPIView):
                 userid=F('user_id'),
             ),
         )
-        
+
         broker_creds_objects_list_finvasia = list(
             broker_creds_objects_finvasuia.values(
                 "totp_key",
@@ -64,7 +66,7 @@ class Strategy(PostLoginAPIView):
             for acc in broker_creds_objects_list_finvasia
         ]
 
-        broker_creds_objects = DnRomilBroker.objects.filter()
+        broker_creds_objects = DnRomilBroker.objects.filter(user=req["user"])
 
         broker_creds_objects_list = list(
             broker_creds_objects.values(
@@ -104,7 +106,7 @@ class Strategy(PostLoginAPIView):
         ]
 
         try:
-            bot = AngelRomilBot(
+            bot = RomilBot(
                 angel_account=accounts_angel[0],
                 finvasia_account=accounts_finvasia[0],
                 other_accounts=accounts_romil,

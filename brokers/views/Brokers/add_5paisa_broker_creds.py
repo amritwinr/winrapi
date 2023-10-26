@@ -111,7 +111,7 @@ class BrokerStore(PostLoginAPIView):
         if not credObj.exists():
             raise Exception(12020)
         credObj.delete()
-        return Response({"id": id})
+        return Response({"id": id}) 
 
 
 class AddBrokerQuantityView(PostLoginAPIView):

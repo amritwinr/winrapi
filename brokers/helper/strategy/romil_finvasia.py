@@ -1,7 +1,6 @@
 import pandas as pd
 import math
 
-
 class FinvasiaIndexLtpBot:
 
     def __init__(self, req, max_threads=50):

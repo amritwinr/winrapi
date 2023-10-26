@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from brokers.tags import BROKER
 from brokers.tasks import place_order_by_master_task
 from custom_lib.api_view_class import PostLoginAPIView
-from custom_lib.helper import post_login
+from custom_lib.helper import post_login 
 
 
 from brokers.helper.upstox.copy_trade import UpstoxBot
@@ -15,9 +15,7 @@ from brokers.helper.FivePaisa.copy_trade import FivePaisaBot
 from brokers.tasks import place_order_by_Finvasia_master_task
 from user.models import DnBrokerUserCredsMaster, DnFinvasiaUserCredsMaster, DnAngelUserCredsMaster, DnUpstoxUserCredsMaster, Dn5paisaUserCredsMaster
 import json
-import pyotp
 import logging
-
 
 class PlaceOrderByMaster(PostLoginAPIView):
 

@@ -17,7 +17,7 @@ class BrokerStore(PostLoginAPIView):
         user = request.GET.get("user")
 
         brokerCredsObj = DnFinvasiaUserCredsMaster.objects.filter(user=user).values(
-            'id', 'user', 'user_id', 'twoFA', 'quantity', 'totp_key', 'status', 'vc', 'app_key', 'imei', 'access_token')
+            'id', 'user', 'user_id', 'twoFA', 'quantity', 'totp_key', 'status', 'vc', 'app_key', 'imei', 'access_token', "unique_code")
 
         def get_table_keys():
             ins = DnFinvasiaUserCredsMaster()
@@ -48,6 +48,7 @@ class BrokerStore(PostLoginAPIView):
         vc = data.get("vc", '')
         app_key = data.get("app_key", '')
         imei = data.get("imei", '')
+        unique_code = data.get("unique_code", '')
 
         if not user_id or not twoFA or not totp_key:
             raise Exception(12006)
@@ -61,6 +62,7 @@ class BrokerStore(PostLoginAPIView):
                                         vc=vc,
                                         app_key=app_key,
                                         imei=imei,
+                                        unique_code=unique_code,
                                         )
         obj.save()
         id = obj.pk

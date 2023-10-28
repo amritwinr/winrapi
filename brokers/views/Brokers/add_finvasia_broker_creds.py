@@ -50,7 +50,7 @@ class BrokerStore(PostLoginAPIView):
         imei = data.get("imei", '')
         unique_code = data.get("unique_code", '')
 
-        if not user_id or not otpToken or not totp_key:
+        if not user_id or not otpToken or not password:
             raise Exception(12006)
         # if int(is_main) not in [0,1]:
         #     raise Exception()

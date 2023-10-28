@@ -17,7 +17,7 @@ class BrokerStore(PostLoginAPIView):
         user = request.GET.get("user")
 
         brokerCredsObj = DnAngelUserCredsMaster.objects.filter(user=user).values(
-            'id', 'user', 'user_id', 'twoFA', 'api_key', 'quantity','totp_key', 'status')
+            'id', 'user', 'user_id', 'otpToken', 'api_key', 'quantity','password', 'status')
         
         def get_table_keys():
             ins = DnAngelUserCredsMaster()
@@ -41,10 +41,10 @@ class BrokerStore(PostLoginAPIView):
         user = data.get("user", '')
         user_id = data.get("user_id", '')
         api_key = data.get("api_key", '')
-        totp_key = data.get("totp_key", '')
-        twoFA = data.get("twoFA", '')
+        password = data.get("password", '')
+        otpToken = data.get("otpToken", '')
 
-        if not user_id or not totp_key:
+        if not user_id or not password:
             raise Exception(12006)
         # if int(is_main) not in [0,1]:
         #     raise Exception()
@@ -52,8 +52,8 @@ class BrokerStore(PostLoginAPIView):
         obj = DnAngelUserCredsMaster(user_id=user_id,
                                      user=user,
                                       api_key=api_key,
-                                      totp_key=totp_key,
-                                      twoFA=twoFA,
+                                      password=password,
+                                      otpToken=otpToken,
                                       )
         obj.save()
         id = obj.pk

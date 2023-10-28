@@ -39,6 +39,10 @@ from brokers.views.PlaceOrder import (
     place_order_by_5paisa_master
 )
 
+from brokers.views.Subscribe import (
+    subscribe
+)
+
 app_name = 'brokers'
 urlpatterns = [
     path('side_bar', side_bar.SideBarView.as_view(), name="side-bar"),
@@ -116,4 +120,7 @@ urlpatterns = [
     # get broker details for romil only in strategy
     path('add_romil_broker', add_romil_broker.BrokerStore.as_view(
     ), name="add_5paisa_broker_creds"),
+
+    path('subscribe', subscribe.BrokerStore.as_view(
+    ), name="subscribe"),
 ]

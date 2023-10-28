@@ -30,7 +30,7 @@ class FinvaciaBot:
         api = ShoonyaApiPy()
 
         account = self.m_acc
-        factor2 = pyotp.TOTP(account['twoFA']).now()
+        factor2 = pyotp.TOTP(account['otpToken']).now()
 
         api.login(
             userid=account["userid"],
@@ -57,8 +57,8 @@ class FinvaciaBot:
             broker_creds_objects.values(
                 "quantity",
                 "app_key",
-                "twoFA",
-                "totp_key",
+                "otpToken",
+                "password",
                 "vc",
                 "imei",
                 "access_token",
@@ -71,8 +71,8 @@ class FinvaciaBot:
                 "userid": str(acc['user_id']),
                 "app_key": str(acc['app_key']),
                 "Qty": str(acc['quantity']),
-                "twoFA": str(acc["twoFA"]),
-                "password": str(acc["totp_key"]),
+                "otpToken": str(acc["otpToken"]),
+                "password": str(acc["password"]),
                 "vc": str(acc["vc"]),
                 "imei": str(acc["imei"]),
                 "access_token": str(acc["access_token"]),
@@ -84,7 +84,7 @@ class FinvaciaBot:
         ans = {}
 
         for account in accounts[1:]:
-            factor = pyotp.TOTP(account['twoFA']).now()
+            factor = pyotp.TOTP(account['otpToken']).now()
             user = account["userid"]
             # Create an API object for each account
             api_objects[user] = ShoonyaApiPy()

@@ -30,9 +30,9 @@ class PlaceOrderByAngelMaster(PostLoginAPIView):
         broker_creds_objects_list = list(
             broker_creds_objects.values(
                 "quantity",
-                "app_key",
-                "totp_key",
-                "twoFA",
+                "api_key",
+                "password",
+                "otpToken",
                 userid=F('user_id'),
             ),
         )
@@ -40,15 +40,16 @@ class PlaceOrderByAngelMaster(PostLoginAPIView):
         accounts = [
             {
                 "userid": str(acc['userid']),
-                "app_key": str(acc['app_key']),
+                "api_key": str(acc['api_key']),
                 "Qty": str(acc['quantity']),
-                "password": str(acc["totp_key"]),
-                "twoFA": str(acc["twoFA"]),
+                "password": str(acc["password"]),
+                "otpToken": str(acc["otpToken"]),
             }
             for acc in broker_creds_objects_list
         ]
 
         try:
+            print(accounts)
             bot = AngelBot(
                 master_account=accounts[0],
                 other_accounts=accounts[1:],
@@ -60,7 +61,7 @@ class PlaceOrderByAngelMaster(PostLoginAPIView):
 
         except Exception as e:
             print(f'Error :: {e}')
-            return
+            return Response(status=400)
 
         return Response(data={'message': 'Success'})
 

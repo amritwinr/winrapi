@@ -24,9 +24,9 @@ class CheckCred(PostLoginAPIView):
         try:
             if req['type'] == "Finvasia":
                 api = ShoonyaApiPy()
-                factor2 = pyotp.TOTP(req['twoFA']).now()
+                factor2 = pyotp.TOTP(req['otpToken']).now()
 
-                ret = api.login(userid=req['user_id'], password=req['totp_key'], twoFA=factor2,
+                ret = api.login(userid=req['user_id'], password=req['password'], twoFA=factor2,
                                 vendor_code=req['vc'], api_secret=req['app_key'], imei=req['imei'])
                 userToken = ret.get('susertoken')
 
@@ -37,11 +37,11 @@ class CheckCred(PostLoginAPIView):
             elif req["type"] == "Angel One":
 
                 obj = SmartConnect(api_key=req["api_key"])
-                factor1 = pyotp.TOTP(req["twoFA"]).now()
+                factor1 = pyotp.TOTP(req["otpToken"]).now()
 
                 # login api call
                 data = obj.generateSession(
-                    req["user_id"], req["totp_key"], factor1)
+                    req["user_id"], req["password"], factor1)
                 refreshToken = data['data']['refreshToken']
 
                 # fetch the feedtoken

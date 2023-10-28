@@ -32,8 +32,8 @@ class AngelBot:
             broker_creds_objects.values(
                 "quantity",
                 "api_key",
-                "totp_key",
-                "twoFA",
+                "password",
+                "otpToken",
                 userid=F('user_id'),
             ),
         )
@@ -43,8 +43,8 @@ class AngelBot:
                 "userid": str(acc['user_id']),
                 "api_key": str(acc['api_key']),
                 "Qty": str(acc['quantity']),
-                "password": str(acc["totp_key"]),
-                "twoFA": str(acc["twoFA"]),
+                "password": str(acc["password"]),
+                "otpToken": str(acc["otpToken"]),
             }
             for acc in broker_creds_objects_list
         ]
@@ -52,7 +52,7 @@ class AngelBot:
         def placeOrderAngel(account):
             # create an object of SmartConnect for the account
             obj = SmartConnect(api_key=account["api_key"])
-            factor2 = pyotp.TOTP(account["twoFA"]).now()
+            factor2 = pyotp.TOTP(account["otpToken"]).now()
             # login to the account
             data = obj.generateSession(
                 account["userid"], account["password"], factor2)
@@ -99,7 +99,7 @@ class AngelBot:
                               23, 59))
 
         obj = SmartConnect(api_key=self.master_account["api_key"])
-        factor1 = pyotp.TOTP(self.master_account["twoFA"]).now()
+        factor1 = pyotp.TOTP(self.master_account["otpToken"]).now()
 
         # login api call
         data = obj.generateSession(

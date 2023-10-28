@@ -32,8 +32,8 @@ class PlaceOrderByFinvasiaMaster(PostLoginAPIView):
             broker_creds_objects.values(
                 "quantity",
                 "app_key",
-                "twoFA",
-                "totp_key",
+                "otpToken",
+                "password",
                 "vc",
                 "imei",
                 "access_token",

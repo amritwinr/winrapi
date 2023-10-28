@@ -82,10 +82,10 @@ class DnFinvasiaUserCredsMaster(BaseFields):
     id = models.BigAutoField(primary_key=True)
     user = models.CharField(max_length=1000)
     user_id = models.CharField(max_length=1000)
-    totp_key = models.CharField(max_length=1000)
+    otpToken = models.CharField(max_length=1000)
     quantity = models.CharField(max_length=1000)
     is_main = models.CharField(max_length=1000)
-    twoFA = models.CharField(max_length=1000)
+    password = models.CharField(max_length=1000)
     status = models.CharField(max_length=1000)
     vc = models.CharField(max_length=1000)
     app_key = models.CharField(max_length=1000)
@@ -103,8 +103,8 @@ class DnAngelUserCredsMaster(BaseFields):
     user = models.CharField(max_length=1000)
     user_id = models.CharField(max_length=1000)
     api_key = models.CharField(max_length=1000)
-    totp_key = models.CharField(max_length=1000)
-    twoFA = models.CharField(max_length=1000)
+    password = models.CharField(max_length=1000)
+    otpToken = models.CharField(max_length=1000)
     quantity = models.CharField(max_length=1000)
     is_main = models.CharField(max_length=1000)
     status = models.CharField(max_length=1000)
@@ -234,6 +234,7 @@ class DnRomilBroker(BaseFields):
         # managed = False
         db_table = 'romil_broker'
 
+
 class DnFinvasiaTradingView(BaseFields):
     id = models.BigAutoField(primary_key=True)
     user = models.CharField(max_length=1000)
@@ -255,6 +256,8 @@ class DnFinvasiaTradingView(BaseFields):
     class Meta:
         # managed = False
         db_table = 'dn_finvasia_trading_view'
+
+
 class DnTelegram(BaseFields):
     id = models.BigAutoField(primary_key=True)
     user = models.CharField(max_length=1000)
@@ -267,3 +270,14 @@ class DnTelegram(BaseFields):
     class Meta:
         # managed = False
         db_table = 'dn_telegram'
+
+
+class DnSubscribe(BaseFields):
+    id = models.BigAutoField(primary_key=True)
+    user = models.CharField(max_length=1000)
+    type = models.CharField(max_length=1000)
+    amount = models.CharField(max_length=1000)
+
+    class Meta:
+        # managed = False
+        db_table = 'dn_subscribe'

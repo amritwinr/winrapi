@@ -6,7 +6,7 @@ from custom_lib.api_view_class import PostLoginAPIView
 from user.models import DnBrokerMaster, DnBrokerUserStatusMaster
 
 
-class BrokerListView(PostLoginAPIView):
+class BrokerListView(PostLoginAPIView): 
     @swagger_auto_schema(
         tags=[BROKER],
         manual_parameters=post_login

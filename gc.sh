@@ -9,7 +9,6 @@ start_gunicorn() {
     if pgrep -f "$GUNICORN_CMD" > /dev/null; then
         echo "Gunicorn is already running."
     else
-        cd "$APP_DIR"
         "$GUNICORN_CMD" --bind 0.0.0.0:8000 WINR.wsgi & # Adjust the number of workers and bind address/port as needed
         echo "Gunicorn started."
     fi

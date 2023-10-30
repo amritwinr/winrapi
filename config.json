@@ -1,0 +1,8 @@
+{
+  "apps": [
+    {
+      "name": "winrapi",
+      "script": "manage.py runserver"
+    }
+  ]
+}

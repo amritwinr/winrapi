@@ -65,3 +65,4 @@ websocket-client==1.6.3
 py5paisa
 playwright
 Telethon
+gunicorn

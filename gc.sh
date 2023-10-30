@@ -10,7 +10,7 @@ start_gunicorn() {
         echo "Gunicorn is already running."
     else
         cd "$APP_DIR"
-        "$GUNICORN_CMD" --bind 0.0.0.0:8000 WINR.wsgi --daemon # Adjust the number of workers and bind address/port as needed
+        "$GUNICORN_CMD" --bind 0.0.0.0:8000 WINR.wsgi & # Adjust the number of workers and bind address/port as needed
         echo "Gunicorn started."
     fi
 }

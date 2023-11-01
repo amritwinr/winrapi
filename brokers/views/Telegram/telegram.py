@@ -21,7 +21,7 @@ class Telegram(PostLoginAPIView):
         self.phone_code_hash = ""
         self.req = {}
         self.usernames = []
-        print(os.path.abspath("./brokers/view/Telegram"))
+        print({"path" : os.path.abspath("./")})
 
     @swagger_auto_schema(
         tags=[BROKER],

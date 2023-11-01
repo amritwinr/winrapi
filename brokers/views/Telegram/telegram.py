@@ -60,6 +60,8 @@ class Telegram(PostLoginAPIView):
 
                     dataList = await db()
 
+                    print({"data": dataList})
+
                     if len(dataList) > 0:
                         code = dataList[0]['code']
 

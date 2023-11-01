@@ -62,6 +62,7 @@ def place_order_by_Finvasia_master_task(broker_creds_obj, master_id, user):
         print(datetime.datetime.now())
         # bot.order_history_df, bot.num_rows1 = bot.get_order_book()
         t1 = threading.Thread(target=bot.process_orders())
+        t1.daemon = True
         t1.start()
         t1.join()
 

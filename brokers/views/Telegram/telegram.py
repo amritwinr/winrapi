@@ -48,7 +48,7 @@ class Telegram(PostLoginAPIView):
                 while True:
                     print("loop started") 
 
-                    @sync_to_async
+                    @sync_to_async 
                     def db():
                         data = DnTelegram.objects.filter(user=self.req["user"])
                         dataList = list(

@@ -13,6 +13,7 @@ from asgiref.sync import sync_to_async
 from telethon import errors
 import os
 
+
 class Telegram(PostLoginAPIView):
 
     def __init__(self,):
@@ -20,6 +21,7 @@ class Telegram(PostLoginAPIView):
         self.phone_code_hash = ""
         self.req = {}
         self.usernames = []
+        print(os.path.abspath("./brokers/view/Telegram"))
 
     @swagger_auto_schema(
         tags=[BROKER],
@@ -32,17 +34,16 @@ class Telegram(PostLoginAPIView):
         asyncio.set_event_loop(loop)
 
         self.client = TelegramClient(
-            os.path.abspath(self.req["phone"]), int(self.req["apiId"]), self.req["apiHash"], loop=loop)
+            os.path.abspath("./"+self.req["phone"]), int(self.req["apiId"]), self.req["apiHash"], loop=loop)
 
         async def handle(loop):
 
             try:
-                await self.client.connect() 
+                await self.client.connect()
 
                 if not await self.client.is_user_authorized():
                     phone_code = await self.client.send_code_request(phone=self.req["phone"])
                     self.phone_code_hash = phone_code.phone_code_hash
-
 
                 while True:
 
@@ -53,7 +54,7 @@ class Telegram(PostLoginAPIView):
                             data.values(
                                 "code",
                             ),
-                        ) 
+                        )
                         return dataList
 
                     dataList = await db()
@@ -67,13 +68,14 @@ class Telegram(PostLoginAPIView):
 
                                 @sync_to_async
                                 def db():
-                                    data = DnTelegram.objects.get(user=self.req["user"])
+                                    data = DnTelegram.objects.get(
+                                        user=self.req["user"])
                                     data.api_id = self.req["apiId"]
                                     data.api_hash = self.req["apiHash"]
                                     data.phone = self.req["phone"]
                                     data.isAuthorized = True
                                     data.save()
- 
+
                                 await db()
 
                             dialogs = await self.client.get_dialogs()

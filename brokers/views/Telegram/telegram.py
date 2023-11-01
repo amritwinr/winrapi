@@ -46,6 +46,7 @@ class Telegram(PostLoginAPIView):
                     self.phone_code_hash = phone_code.phone_code_hash
 
                 while True:
+                    print("loop started")
 
                     @sync_to_async
                     def db():

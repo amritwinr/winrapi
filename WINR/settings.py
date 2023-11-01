@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'corsheaders',
     'rest_framework_simplejwt',
-    'celery'
+    'celery',
 ]+CUSTOM_APPS
 
 MIDDLEWARE = [

@@ -102,6 +102,6 @@ class Telegram(PostLoginAPIView):
                 print('Flood wait for ', e.seconds)
                 exit
 
-        loop.run_until_complete(handle(loop=self.client.loop))
+        self.client.loop.run_until_complete(handle(loop=self.client.loop))
 
         return Response(data=self.usernames)

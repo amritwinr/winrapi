@@ -44,7 +44,7 @@ class PlaceOrderByFinvasiaMaster(PostLoginAPIView):
         Response(data={'message': 'Started background task'})
 
         place_order_by_Finvasia_master_task(
-            broker_creds_objects_list, master_id=broker_creds_objects.first().id, user=user)
+            broker_creds_objects_list, master_id=broker_creds_objects.first().id, user=user).delay()
 
         return Response(data={'message': 'Started background task'})
 

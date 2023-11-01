@@ -18,8 +18,6 @@ class Telegram(PostLoginAPIView):
 
     def __init__(self,):
         Thread.__init__(self)
-        self.daemon = True
-        self.start()
         self.client = 0
         self.phone_code_hash = ""
         self.req = {}

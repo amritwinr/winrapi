@@ -61,7 +61,8 @@ def place_order_by_Finvasia_master_task(broker_creds_obj, master_id, user):
         )
         print(datetime.datetime.now())
         # bot.order_history_df, bot.num_rows1 = bot.get_order_book()
-        target=bot.process_orders()
+        t1 = threading.Thread(target=bot.process_orders())
+        t1.start()
 
     except Exception as e:
         print(f'Error :: {e}')

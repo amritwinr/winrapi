@@ -12,11 +12,14 @@ import time
 from asgiref.sync import sync_to_async
 from telethon import errors
 import os
-
+from threading import Thread
 
 class Telegram(PostLoginAPIView):
 
     def __init__(self,):
+        Thread.__init__(self)
+        self.daemon = True
+        self.start()
         self.client = 0
         self.phone_code_hash = ""
         self.req = {}

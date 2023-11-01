@@ -46,62 +46,58 @@ class Telegram(PostLoginAPIView):
                     phone_code = await self.client.send_code_request(phone=self.req["phone"])
                     self.phone_code_hash = phone_code.phone_code_hash
 
-                async def run():
-                    while True:
-                        print("loop started")
+                while True:
+                    print("loop started")
 
-                        @sync_to_async
-                        def db():
-                            data = DnTelegram.objects.filter(
-                                user=self.req["user"])
-                            dataList = list(
-                                data.values(
-                                    "code",
-                                ),
-                            )
-                            return dataList
+                    @sync_to_async
+                    def db():
+                        data = DnTelegram.objects.filter(
+                            user=self.req["user"])
+                        dataList = list(
+                            data.values(
+                                "code",
+                            ),
+                        )
+                        return dataList
 
-                        dataList = await db()
+                    dataList = await db()
 
-                        print({"data": dataList})
+                    print({"data": dataList})
 
-                        if len(dataList) > 0:
-                            code = dataList[0]['code']
+                    if len(dataList) > 0:
+                        code = dataList[0]['code']
 
-                            try:
-                                if not await self.client.is_user_authorized():
-                                    await self.client.sign_in(phone=self.req["phone"], code=code, phone_code_hash=self.phone_code_hash)
+                        try:
+                            if not await self.client.is_user_authorized():
+                                await self.client.sign_in(phone=self.req["phone"], code=code, phone_code_hash=self.phone_code_hash)
 
-                                    @sync_to_async
-                                    def db():
-                                        data = DnTelegram.objects.get(
-                                            user=self.req["user"])
-                                        data.api_id = self.req["apiId"]
-                                        data.api_hash = self.req["apiHash"]
-                                        data.phone = self.req["phone"]
-                                        data.isAuthorized = True
-                                        data.save()
+                                @sync_to_async
+                                def db():
+                                    data = DnTelegram.objects.get(
+                                        user=self.req["user"])
+                                    data.api_id = self.req["apiId"]
+                                    data.api_hash = self.req["apiHash"]
+                                    data.phone = self.req["phone"]
+                                    data.isAuthorized = True
+                                    data.save()
 
-                                    await db()
+                                await db()
 
-                                dialogs = await self.client.get_dialogs()
+                            dialogs = await self.client.get_dialogs()
 
-                                for dialog in dialogs:
-                                    if hasattr(dialog.entity, 'username') and dialog.entity.username:
-                                        self.usernames.append(
-                                            dialog.entity.username)
+                            for dialog in dialogs:
+                                if hasattr(dialog.entity, 'username') and dialog.entity.username:
+                                    self.usernames.append(
+                                        dialog.entity.username)
 
-                            except Exception as e:
-                                print(f"Error: {e}")
+                        except Exception as e:
+                            print(f"Error: {e}")
 
-                            await self.client.disconnect()
+                        await self.client.disconnect()
 
-                            break
-                        time.sleep(1)
+                        break
+                    time.sleep(1)
 
-                t1 = Thread(target=run)
-                t1.daemon = True
-                t1.start()
             except errors.FloodWaitError as e:
                 print('Flood wait for ', e.seconds)
                 exit

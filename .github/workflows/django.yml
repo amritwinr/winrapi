@@ -19,4 +19,4 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        nohup gunicorn --bind 0.0.0.0:8000 WINR.wsgi &
+        pm2 restart winrapi

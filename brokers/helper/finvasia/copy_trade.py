@@ -13,7 +13,7 @@ import pyotp
 import pandas as pd
 
 import threading
-from celery import shared_task
+
 
 class FinvaciaBot:
 
@@ -93,8 +93,6 @@ class FinvaciaBot:
             password=account["password"], 
             usertoken=account["access_token"]
         )
-
-        @shared_task()
         def place_order_for_account(api_obj, account):
             try:
                 order = api_obj.place_order(

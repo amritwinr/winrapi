@@ -22,7 +22,6 @@ class Telegram(PostLoginAPIView):
         self.phone_code_hash = ""
         self.req = {}
         self.usernames = []
-        print({"path": os.path.abspath("./")})
 
     @swagger_auto_schema(
         tags=[BROKER],
@@ -35,7 +34,7 @@ class Telegram(PostLoginAPIView):
         asyncio.set_event_loop(loop)
 
         self.client = TelegramClient(
-            os.path.abspath("./"+self.req["phone"]), int(self.req["apiId"]), self.req["apiHash"], loop=loop)
+            os.path.abspath(self.req["phone"]), int(self.req["apiId"]), self.req["apiHash"], loop=loop)
 
         async def handle(loop):
 

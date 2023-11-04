@@ -17,7 +17,9 @@ from brokers.views.TradingView import (
 
 from brokers.views.Telegram import (
     telegram,
-    add_telegram
+    add_telegram,
+    subscribe_telegram,
+    trade
 )
 
 from brokers.views.Brokers import (
@@ -114,6 +116,8 @@ urlpatterns = [
     path('telegram', telegram.Telegram.as_view(),
          name="telegram"),
     path('add_telegram', add_telegram.BrokerStore.as_view(), name="add_telegram"),
+    path('subscribe_telegram', subscribe_telegram.BrokerStore.as_view(), name="subscribe_telegram"),
+    path('place_order_by_telegram', trade.PlaceOrderByTelegram.as_view(), name="place_order_by_telegram"),
 
     # strategy
     path('strategy', strategy.Strategy.as_view(), name="strategy"),

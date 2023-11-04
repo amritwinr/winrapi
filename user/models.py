@@ -281,3 +281,15 @@ class DnSubscribe(BaseFields):
     class Meta:
         # managed = False
         db_table = 'dn_subscribe'
+
+
+class DnTelegramSubscribe(BaseFields):
+    id = models.BigAutoField(primary_key=True)
+    user = models.CharField(max_length=1000)
+    quantity = models.CharField(max_length=1000)
+    name = models.CharField(max_length=1000)
+    symbols = models.CharField(max_length=1000)
+
+    class Meta:
+        # managed = False
+        db_table = 'dn_telegram_subscribe'

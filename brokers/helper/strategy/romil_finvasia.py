@@ -29,10 +29,6 @@ class FinvasiaIndexLtpBot:
         upper_limit = float(accounts_romil["upper_level"])
         lower_limit = float(accounts_romil["lower_level"])
 
-        print({"upper----": upper_limit})
-        print({"lower----": lower_limit})
-        print({"ce": self.traded_stocks_ce})
-        print({"pe": self.traded_stocks_pe})
         strike_c = float(accounts_romil["strike_ce"])
         strike_p = float(accounts_romil["strike_pe"])
         target_up = float(accounts_romil["upper_target"])

@@ -25,16 +25,16 @@ class Strategy(PostLoginAPIView):
         broker_creds_objects_list_angel = list(
             broker_creds_objects_angel.values(
                 "api_key",
-                "twoFA",
-                "totp_key",
+                "otpToken",
+                "password",
                 userid=F('user_id'),
             ),
         )
 
         broker_creds_objects_list_finvasia = list(
             broker_creds_objects_finvasuia.values(
-                "totp_key",
-                "twoFA",
+                "password",
+                "otpToken",
                 "vc",
                 "app_key",
                 "imei",
@@ -47,8 +47,8 @@ class Strategy(PostLoginAPIView):
             {
                 "userid": str(acc['userid']),
                 "api_key": str(acc['api_key']),
-                "password": str(acc["totp_key"]),
-                "twoFA": str(acc["twoFA"]),
+                "password": str(acc["password"]),
+                "twoFA": str(acc["otpToken"]),
             }
             for acc in broker_creds_objects_list_angel
         ]
@@ -57,8 +57,8 @@ class Strategy(PostLoginAPIView):
             {
                 "userid": str(acc['userid']),
                 "app_key": str(acc['app_key']),
-                "password": str(acc["totp_key"]),
-                "twoFA": str(acc["twoFA"]),
+                "password": str(acc["password"]),
+                "twoFA": str(acc["otpToken"]),
                 "vc": str(acc["vc"]),
                 "imei": str(acc["imei"]),
                 "access_token": str(acc["access_token"]),

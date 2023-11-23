@@ -107,8 +107,8 @@ class Strategy(PostLoginAPIView):
 
         try:
             bot = RomilBot(
-                angel_account=accounts_angel[0],
-                finvasia_account=accounts_finvasia[0],
+                angel_account= accounts_angel[0] if accounts_angel else [],
+                finvasia_account=accounts_finvasia[0] if accounts_finvasia else [],
                 other_accounts=accounts_romil,
                 logger=logging.getLogger('place_order_by_master_task'),
                 req=req

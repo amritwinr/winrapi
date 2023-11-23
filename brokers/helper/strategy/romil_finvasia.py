@@ -1,6 +1,6 @@
 import pandas as pd
 import math
-
+from datetime import datetime, timedelta
 class FinvasiaIndexLtpBot:
 
     def __init__(self, req, max_threads=50):
@@ -15,6 +15,8 @@ class FinvasiaIndexLtpBot:
         self.order = 0
 
         self.threshold = 1
+        self.thresholdCE = 1
+        self.thresholdPE = 1
         self.order_status = []
         self.order_placed_ce = "NO"
         self.order_placed_pe = "NO"
@@ -40,9 +42,30 @@ class FinvasiaIndexLtpBot:
         ATMStrike_pe = math.ceil(indexLtp/atm)*atm+strike_p*atm
         month = self.req["expiry"]
 
-        if indexLtp >= upper_limit and name not in self.traded_stocks_ce:
+        rdf = [{"CE": 0, "PE": 4}, { "CE": 0, "PE": 3 } , { "CE": 0, "PE": 2 }, { "CE": 0, "PE": 1 }] if name == "FIN NIFTY" else [{"CE": 0, "PE": 1}, {"CE": 0, "PE": 1}, {"CE": 0, "PE": 1}, {"CE": 0, "PE": 1}]
+
+        def week_of_month(date):
+            first_day = date.replace(day=1)
+            adjusted_date = date - timedelta(days=date.day - 1)
+            week_number = (adjusted_date.weekday() + date.day - 1) // 7 + 1
+
+            if week_number > 4:
+                next_month = date.replace(day=28) + timedelta(days=4) 
+                next_month = next_month + timedelta(days=7 - next_month.weekday())
+                week_number = 1
+                return next_month, week_number
+
+            return date, week_number
+
+        specific_date = datetime.today()
+        result_date, week_number = week_of_month(specific_date)
+        # month_name = result_date.strftime('%b').upper()
+
+
+        if abs(upper_limit-indexLtp <= 1) and name not in self.traded_stocks_ce:
             print(f"{name} Upper range reached.")
             txt = (f'{name} {month} {ATMStrike_ce}')  # 15500'
+
             res = api.searchscrip('NFO', txt)
             resDf = pd.DataFrame(res['values'])
             resDf = resDf.sort_values(by='dname').iloc[0]
@@ -59,6 +82,7 @@ class FinvasiaIndexLtpBot:
             self.sl_upper_b = upper_limit-sl_up
             self.order_placed_ce = "YES"
 
+
         if (self.order_placed_ce == "YES") and (indexLtp - self.sl_upper_b) <= self.threshold and (name not in self.banknifty_ce) or (self.order_placed_ce == "YES") and ((indexLtp - self.target_upper_b) >= self.threshold) and (name not in self.banknifty_ce):
             print(f"{name} Upper range exit reached.")
 
@@ -69,12 +93,12 @@ class FinvasiaIndexLtpBot:
             print(order)
             self.banknifty_ce.append(name)
 
-        if indexLtp <= lower_limit and name not in self.traded_stocks_pe:
+        if abs(indexLtp-lower_limit <= 1)  and name not in self.traded_stocks_pe:
             print(f"{name} lower range reached.")
             txt = (f'{name} {month} {ATMStrike_pe}')  # 15500'
             res = api.searchscrip('NFO', txt)
             resDf = pd.DataFrame(res['values'])
-            resDf = resDf.sort_values(by='dname').iloc[1]
+            resDf = resDf.sort_values(by='dname').iloc[rdf[week_number]['PE']]
 
             order = api.place_order(buy_or_sell='B', product_type='I',
                                     exchange='NFO', tradingsymbol=resDf.tsym,

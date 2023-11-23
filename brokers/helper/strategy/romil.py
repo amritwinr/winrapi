@@ -25,24 +25,29 @@ class RomilBot:
             req=self.req)
 
         self.tokenDf = 0
+        self.obj = 0
+        self.api = 0
 
     def process_orders(self):
-        api = ShoonyaApiPy()
 
-        api.set_session(
-            userid=self.finvasia_account["userid"],
-            password=self.finvasia_account["password"],
-            usertoken=self.finvasia_account["access_token"]
-        )
+        if self.finvasia_account: 
+            self.api = ShoonyaApiPy()
 
-        factor2 = pyotp.TOTP(self.angel_account["twoFA"]).now()
-        obj = SmartConnect(api_key=self.angel_account["api_key"])
-        data = obj.generateSession(
-            self.angel_account["userid"], self.angel_account["password"], factor2)
+            self.api.set_session(
+                userid=self.finvasia_account["userid"],
+                password=self.finvasia_account["password"],
+                usertoken=self.finvasia_account["access_token"]
+            )
 
-        refreshToken = data['data']['refreshToken']
-        feedToken = obj.getfeedToken()
-        userProfile = obj.getProfile(refreshToken)
+        if self.angel_account: 
+            factor2 = pyotp.TOTP(self.angel_account["twoFA"]).now()
+            self.obj = SmartConnect(api_key=self.angel_account["api_key"])
+            data = self.obj.generateSession(
+                self.angel_account["userid"], self.angel_account["password"], factor2)
+
+            refreshToken = data['data']['refreshToken']
+            feedToken = self.obj.getfeedToken()
+            userProfile = self.obj.getProfile(refreshToken)
 
         if self.req["type"] == "Angel One":
             url = 'https://margincalculator.angelbroking.com/OpenAPI_File/files/OpenAPIScripMaster.json'
@@ -71,21 +76,21 @@ class RomilBot:
             indexAngel = angel_symbols.index(self.req["symbol"])
             indexFin = angel_symbols.index(self.req["symbol"])
 
-        watchlist1 = ['NIFTY 50', 'BANKNIFTY', 'MIDCP', 'FINNIFTY']
-        watchlist2 = ['NIFTY', 'BANKNIFTY', 'MIDCPNIFTY', 'FINNIFTY']
+        watchlist1 = ['NIFTY', 'BANKNIFTY', 'MIDCP', 'FIN NIFTY']
+        watchlist2 = ['NIFTY', 'BANKNIFTY', 'MIDCPNIFTY', 'FIN NIFTY']
 
         watchDictFin = {
-            'NIFTY 50': fin_symbols[0],
+            'NIFTY': fin_symbols[0],
             'BANKNIFTY': fin_symbols[1],
             'MIDCP': fin_symbols[2],
-            'FINNIFTY': fin_symbols[3],
+            'FIN NIFTY': fin_symbols[3],
         }
 
         watchDictAngel = {
             'NIFTY': angel_symbols[0],
             'BANKNIFTY': angel_symbols[1],
             'MIDCPNIFTY': angel_symbols[2],
-            'FINNIFTY': angel_symbols[3],
+            'FIN NIFTY': angel_symbols[3],
         }
 
         angelToken = {'NIFTY': 99926000, 'BANKNIFTY': 99926009,
@@ -93,7 +98,6 @@ class RomilBot:
 
         filtered_dict_fin = {}
         filtered_dict_angel = {}
-
 
         # Check if the name matches any key in my_dict
         for key, value in watchDictFin.items():
@@ -164,15 +168,18 @@ class RomilBot:
                 ltp = for_ltp.get(tuple(watchlist1), {}).get(name)
                 if ltp is not None:
                     try:
-                        indexLtp = float(api.get_quotes(
+                        indexLtp = float(self.api.get_quotes(
                             'NSE', ltp)['lp'])
                         self.indexLtpGlobal = indexLtp
                         print(
                             f"{self.req['id']}ltp_from_finvasia...{indexLtp}")
 
+                        # print({"d": ltp})
+                        # print({"e": watchlist1[indexFin]})
+
                         if self.req["type"] == "Finvasia":
                             self.finBot.finvasia_indexLtp(
-                                api, atm, name=watchlist1[indexFin], accounts_romil=accounts_romil[0], indexLtp=self.indexLtpGlobal)
+                                self.api, atm, name=watchlist1[indexFin], accounts_romil=accounts_romil[0], indexLtp=self.indexLtpGlobal)
 
                     except Exception as e:
                         print(e)
@@ -184,14 +191,14 @@ class RomilBot:
                 if symbol is not None:
                     try:
                         token = angelToken.get(symbol)
-                        indexLtp = obj.ltpData(
+                        indexLtp = self.obj.ltpData(
                             'NSE', symbol, token)['data']['ltp']
                         self.indexLtpGlobal = indexLtp
                         print(f"ltp_from_angle_one...{indexLtp}")
 
                         if self.req["type"] == "Angel One":
                             self.angelBot.angel_indexLtp(
-                                obj, atm, symbol=watchlist2[indexAngel], accounts_romil=accounts_romil[0], token_df=self.token_df, indexLtp=self.indexLtpGlobal)
+                                self.obj, atm, symbol=watchlist2[indexAngel], accounts_romil=accounts_romil[0], token_df=self.token_df, indexLtp=self.indexLtpGlobal)
                             
                     except Exception as e:
                         print("error in data fatching in angle one")

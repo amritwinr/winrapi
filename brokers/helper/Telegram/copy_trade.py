@@ -11,6 +11,7 @@ import datetime
 import re
 from rest_framework.response import Response
 
+
 class TelegramBot:
 
     def __init__(self, account, finvasia_account, req):
@@ -76,35 +77,49 @@ class TelegramBot:
                 print(f"first con. meet")
                 print(LIST1)
                 b_s = [word for word in tl_msg.split() if word in BUY_SELL][0]
-                rdf = [{"CE": 0, "PE": 4}, { "CE": 0, "PE": 3 } , { "CE": 0, "PE": 2 }, { "CE": 0, "PE": 1 }]
+                rdf = [{"CE": 0, "PE": 4}, {"CE": 0, "PE": 3}, {
+                    "CE": 0, "PE": 2}, {"CE": 0, "PE": 1}] if LIST1[0] == 'FINNIFTY' else [{"CE": 0, "PE": 1}, {"CE": 0, "PE": 1}, {
+                        "CE": 0, "PE": 1}, {"CE": 0, "PE": 1}]
+
                 ce_pe = [word for word in tl_msg.split() if word in CE_PE][0]
 
                 qty = lot[LIST1[0]]
                 ATMStrike_ce = number
-                
-                current_date = datetime.date.today()
-                month_name = current_date.strftime('%b').upper()
 
-                first_day_of_month = current_date.replace(day=1)
-                week_number = (current_date - first_day_of_month).days // 7 + 1
-                week_number = int(week_number)
+                def week_of_month(date):
+                    first_day = date.replace(day=1)
+                    adjusted_date = date - timedelta(days=date.day - 1)
+                    week_number = (adjusted_date.weekday() + date.day - 1) // 7 + 1
+
+                    if week_number == 5:
+                        next_month = date.replace(day=28) + timedelta(days=4) 
+                        next_month = next_month + timedelta(days=7 - next_month.weekday())
+                        week_number = 1
+                        return next_month, week_number
+
+                    return date, week_number
+
+                specific_date = datetime.today()
+                result_date, week_number = week_of_month(specific_date)
+                month_name = result_date.strftime('%b').upper()
 
                 order = 0
 
                 if order == 0:
                     try:
                         txt = (
-                            f'{LIST1[0]} {month_nam} {ATMStrike_ce}')
+                            f'{LIST1[0]} {month_name} {ATMStrike_ce}')
                         res = self.api.searchscrip('NFO', txt)
                         resDf = pd.DataFrame(res['values'])
-                        resDf = resDf.sort_values(by='dname').iloc[rdf[week_number-1][ce_pe]]
+                        resDf = resDf.sort_values(
+                            by='dname').iloc[rdf[week_number-1][ce_pe]]
 
                         order = self.api.place_order(buy_or_sell='B', product_type='I',
-                                                    exchange='NFO', tradingsymbol=resDf.tsym,
-                                                    quantity=int(tl_data["quantity"]) *  int(qty), discloseqty=0, price_type='MKT', price=0, trigger_price=None,
-                                                    retention='DAY', remarks='my_order_001')
+                                                     exchange='NFO', tradingsymbol=resDf.tsym,
+                                                     quantity=int(tl_data["quantity"]) * int(qty), discloseqty=0, price_type='MKT', price=0, trigger_price=None,
+                                                     retention='DAY', remarks='my_order_001')
 
-                        print({"order----" : order})
+                        print({"order----": order})
 
                     except Exception as e:
                         print({"error": e})
@@ -130,16 +145,16 @@ class TelegramBot:
                         # else:
                         print(f"second con. meet")
                         print(LIST1)
-                        b_s = [word for word in tl_msg.split() if word in BUY_SELL][0]
+                        b_s = [word for word in tl_msg.split()
+                               if word in BUY_SELL][0]
 
                         order = self.api.place_order(buy_or_sell=b_s[0], product_type='I',
-                                                    exchange='NSE', tradingsymbol=f"{LIST1[0]}-EQ",
-                                                    quantity=tl_data["quantity"], discloseqty=0, price_type='MKT', price=0, trigger_price=None,
-                                                    retention='DAY', remarks='my_order_001')
+                                                     exchange='NSE', tradingsymbol=f"{LIST1[0]}-EQ",
+                                                     quantity=tl_data["quantity"], discloseqty=0, price_type='MKT', price=0, trigger_price=None,
+                                                     retention='DAY', remarks='my_order_001')
                         print({"order---": order})
                     except Exception as e:
-                            print({"error": e})
-
+                        print({"error": e})
 
     def trade(self):
         phone = self.account["phone"]
